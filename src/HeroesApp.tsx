@@ -1,8 +1,6 @@
+import { RouterProvider } from "react-router";
+import { router } from "./router/app-router";
+
 export function HeroesApp() {
-  return (
-    <>
-      <h1>HeroesApp</h1>
-      <hr />
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
