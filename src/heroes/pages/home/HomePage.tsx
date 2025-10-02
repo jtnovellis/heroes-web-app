@@ -2,19 +2,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CustonJumbotron from "@/components/custom/CustonJumbotron";
 import HeroStats from "@/heroes/components/HeroStats";
 import HeroGrid from "@/heroes/components/HeroGrid";
-import { useState } from "react";
+import { useMemo } from "react";
 import CustomPagination from "@/components/custom/CustomPagination";
 import { CustomBreadcrumbs } from "@/components/custom/CustomBreadcrumbs";
 import { getHeroesByPage } from "@/heroes/actions/get-heroes-by-page.action";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router";
 
 export function HomePage() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: heroesResponse } = useQuery({
     queryKey: ["heroes"],
     queryFn: () => getHeroesByPage(),
     staleTime: 1000 * 60 * 5,
   });
+
+  const tab = searchParams.get("tab") || "all";
+
+  const selectedTab = useMemo(() => {
+    const validTabs = ["all", "favorites", "heroes", "villains"];
+    return validTabs.includes(tab) ? tab : "all";
+  }, [tab]);
+
+  const handleTabChange = (tab: string) => {
+    setSearchParams((prev) => {
+      prev.set("tab", tab);
+      return prev;
+    });
+  };
 
   return (
     <>
@@ -30,7 +45,11 @@ export function HomePage() {
 
       <HeroStats />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+      <Tabs
+        value={selectedTab}
+        onValueChange={(tab) => handleTabChange(tab)}
+        className="mb-8"
+      >
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all">All Characters (16)</TabsTrigger>
           <TabsTrigger value="favorites" className="flex items-center gap-2">

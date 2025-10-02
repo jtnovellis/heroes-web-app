@@ -4,12 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Heart, Eye, Zap, Brain, Gauge, Shield } from "lucide-react";
 import type { Hero } from "../types/hero.interface";
+import { useNavigate } from "react-router";
 
 interface Props {
   hero: Hero;
 }
 
 export default function HeroGridCard({ hero }: Props) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/heroes/${hero.slug}`);
+  };
+
   return (
     <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-white to-gray-50">
       <div className="relative h-64 overflow-hidden">
@@ -17,6 +24,7 @@ export default function HeroGridCard({ hero }: Props) {
           src={hero.image}
           alt={hero.name}
           className="object-cover transition-all duration-500 group-hover:scale-110"
+          onClick={handleClick}
         />
 
         {/* Status indicator */}
@@ -54,7 +62,7 @@ export default function HeroGridCard({ hero }: Props) {
         </Button>
       </div>
 
-      <CardHeader className="pb-3">
+      <CardHeader className="py-3 z-10 bg-gray-100/50 backdrop-blur-sm relative top-1 group-hover:top-[-10px] transition-all duration-300">
         <div className="flex justify-between items-start">
           <div className="space-y-1">
             <h3 className="font-bold text-lg leading-tight">{hero.alias}</h3>
@@ -80,7 +88,7 @@ export default function HeroGridCard({ hero }: Props) {
               <span className="text-xs font-medium">Strength</span>
             </div>
             <Progress
-              value={hero.strength}
+              value={hero.strength * 10}
               className="h-2"
               activeColor="bg-orange-500"
             />
@@ -91,7 +99,7 @@ export default function HeroGridCard({ hero }: Props) {
               <span className="text-xs font-medium">Intelligence</span>
             </div>
             <Progress
-              value={hero.intelligence}
+              value={hero.intelligence * 10}
               className="h-2"
               activeColor="bg-blue-500"
             />
@@ -102,7 +110,7 @@ export default function HeroGridCard({ hero }: Props) {
               <span className="text-xs font-medium">Speed</span>
             </div>
             <Progress
-              value={hero.speed}
+              value={hero.speed * 10}
               className="h-2"
               activeColor="bg-green-500"
             />
@@ -113,7 +121,7 @@ export default function HeroGridCard({ hero }: Props) {
               <span className="text-xs font-medium">Durability</span>
             </div>
             <Progress
-              value={hero.durability}
+              value={hero.durability * 10}
               className="h-2"
               activeColor="bg-purple-500"
             />
