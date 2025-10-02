@@ -5,19 +5,21 @@ import HeroGrid from "@/heroes/components/HeroGrid";
 import { useMemo } from "react";
 import CustomPagination from "@/components/custom/CustomPagination";
 import { CustomBreadcrumbs } from "@/components/custom/CustomBreadcrumbs";
-import { getHeroesByPage } from "@/heroes/actions/get-heroes-by-page.action";
-import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router";
+import { useHeroSummary } from "@/heroes/hooks/useHeroSummary";
+import { usePaginateHero } from "@/heroes/hooks/usePaginateHero";
 
 export function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { data: heroesResponse } = useQuery({
-    queryKey: ["heroes"],
-    queryFn: () => getHeroesByPage(),
-    staleTime: 1000 * 60 * 5,
-  });
 
+  const page = searchParams.get("page") || "1";
+  const limit = searchParams.get("limit") || "6";
   const tab = searchParams.get("tab") || "all";
+  const category = searchParams.get("category") || "all";
+
+  const { data: heroesResponse } = usePaginateHero({ page, limit, category });
+
+  const { data: summaryInfo } = useHeroSummary();
 
   const selectedTab = useMemo(() => {
     const validTabs = ["all", "favorites", "heroes", "villains"];
@@ -27,6 +29,21 @@ export function HomePage() {
   const handleTabChange = (tab: string) => {
     setSearchParams((prev) => {
       prev.set("tab", tab);
+      if (tab === "all") {
+        prev.set("category", "all");
+        prev.set("page", "1");
+      }
+      if (tab === "heroes") {
+        prev.set("category", "hero");
+        prev.set("page", "1");
+      }
+      if (tab === "villains") {
+        prev.set("category", "villain");
+        prev.set("page", "1");
+      }
+      if (tab === "favorites") {
+        prev.set("category", "favorite");
+      }
       return prev;
     });
   };
@@ -51,23 +68,33 @@ export function HomePage() {
         className="mb-8"
       >
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="all">All Characters (16)</TabsTrigger>
+          <TabsTrigger value="all">
+            All Characters ({summaryInfo?.totalHeroes})
+          </TabsTrigger>
           <TabsTrigger value="favorites" className="flex items-center gap-2">
             Favorites (3)
           </TabsTrigger>
-          <TabsTrigger value="heroes">Heroes (12)</TabsTrigger>
-          <TabsTrigger value="villains">Villains (2)</TabsTrigger>
+          <TabsTrigger value="heroes">
+            Heroes ({summaryInfo?.heroCount})
+          </TabsTrigger>
+          <TabsTrigger value="villains">
+            Villains ({summaryInfo?.villainCount})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all">
           <HeroGrid heroes={heroesResponse?.heroes ?? []} />
         </TabsContent>
         <TabsContent value="favorites"></TabsContent>
-        <TabsContent value="heroes"></TabsContent>
-        <TabsContent value="villains"></TabsContent>
+        <TabsContent value="heroes">
+          <HeroGrid heroes={heroesResponse?.heroes ?? []} />
+        </TabsContent>
+        <TabsContent value="villains">
+          <HeroGrid heroes={heroesResponse?.heroes ?? []} />
+        </TabsContent>
       </Tabs>
 
-      <CustomPagination totalPages={10} />
+      <CustomPagination totalPages={heroesResponse?.pages ?? 1} />
     </>
   );
 }
