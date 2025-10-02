@@ -5,9 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getHero } from "@/heroes/actions/getHero";
 import { useQuery } from "@tanstack/react-query";
 import { Shield, Zap, Brain, Gauge, Users, Star, Award } from "lucide-react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 export default function HeroPage() {
+  const navigate = useNavigate();
   const { slug } = useParams();
 
   const { data: superheroData } = useQuery({
@@ -17,7 +18,8 @@ export default function HeroPage() {
   });
 
   if (!superheroData) {
-    return null;
+    navigate("/");
+    return;
   }
 
   const totalPower =
