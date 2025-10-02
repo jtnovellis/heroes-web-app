@@ -5,9 +5,16 @@ import HeroGrid from "@/heroes/components/HeroGrid";
 import { useState } from "react";
 import CustomPagination from "@/components/custom/CustomPagination";
 import { CustomBreadcrumbs } from "@/components/custom/CustomBreadcrumbs";
+import { getHeroesByPage } from "@/heroes/actions/get-heroes-by-page.action";
+import { useQuery } from "@tanstack/react-query";
 
 export function HomePage() {
   const [activeTab, setActiveTab] = useState("all");
+  const { data } = useQuery({
+    queryKey: ["heroes"],
+    queryFn: () => getHeroesByPage(),
+    staleTime: 1000 * 60 * 5,
+  });
 
   return (
     <>
